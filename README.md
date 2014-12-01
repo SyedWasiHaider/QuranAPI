@@ -1,12 +1,13 @@
 QuranAPI
 ============
 
-A first (and probably poor) attempt at a REST API for the Holy Quran. Open to suggestions and changes.
+A first (and probably poor) attempt at a REST API for the Holy Quran. I know that a Quran API already exists but I wished to learn some REST API stuff and also just make a Quran API for my own future projects. Open to suggestions and changes.
 
 Requirements
 =================
 
 -nodejs
+
 -mongodb service running
 
 Usage
@@ -47,13 +48,16 @@ TODO
 =================================
 
 -Add Arabic (of course!!)
+
 -Add more languages
+
 -Conform to proper REST API standards
+
 -Add more functions
 
 
 Acknowledgements
 ===============================
 
-Thanks to Tanzil.info for the translation database
+Thanks to Tanzil.info for the English translation database
 
