@@ -1,0 +1,19 @@
+{
+    "name": "quran-api",
+    "version": "0.6.0",
+    "private": true,
+    "scripts": {
+      "start": "node server.js"
+    },
+    "engines": {
+      "node": ">=8.2.1"
+    },
+    "author": "Hasan Sa <hasansa007@gmail.com>",
+    "dependencies": {
+      "express": "^4.15.4",
+      "express-winston": "^2.4.0",
+      "underscore": "^1.8.3",
+      "mongodb": "^2.2.31"
+    }
+  }
+  
