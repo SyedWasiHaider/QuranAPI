@@ -14,11 +14,13 @@ Usage
 ===================
 Run the command from the command line:
 
-1- nodejs server.js
+1- npm install
 
-2- Go to your browser and type localhost:3000
+2- npm start or nodejs server.js 
 
-3- Type in any of the paths from the API below after the url
+3- Go to your browser and type localhost:3000
+
+4- Type in any of the paths from the API below after the url
 
 So for example to get the surah 3, verse 2 you would do:
 
