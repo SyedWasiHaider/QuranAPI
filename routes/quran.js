@@ -1,35 +1,30 @@
 var mongo = require('mongodb');
 var fs = require('fs')
 var _ = require('underscore');
-
-var Server = mongo.Server,
-Db = mongo.Db,
-BSON = mongo.BSONPure;
+var mongoose = require('mongoose');
 
 /*********SOME CONSTANTS****************/
 var englishCollectionName = "englishCollectionName";
 var quranArabicCollectionName = "quranArabicCollectionName";
 var maxVerses = 6236
-var dbName = "QuranDatabase";
+var dbName = "quran-database";
+var uri = `mongodb://admin:admin@ds137054.mlab.com:37054/quran-database`;
+mongoose.connect(uri);
 
-var server = new Server('localhost', 27017, {auto_reconnect: true});
-db = new Db(dbName, server, {w:1});
+mongoose.connection.db.on('error', console.error.bind(console, 'connection error:'));
 
-
-//Opens a connection to the database and checks to see if our collecions exists
-//and creates them if necessary.
-db.open(function(err, db) {
-	console.log(err)
+mongoose.connection.db.once('open', function(err, database) {
+	
 	if(!err) {
 		console.log("Connected to database");
-		db.collection(englishCollectionName, {strict:true}, function(err, collection) {
+		mongoose.connection.db.collection(englishCollectionName, {strict:true}, function(err, collection) {
 			if (err) {
 				console.log("The 'verses' collection doesn't exist. Creating now...");
 				populateTranslation();
 			}
 		});
 
-		db.collection(quranArabicCollectionName, {strict:true}, function(err, collection) {
+		mongoose.connection.db.collection(quranArabicCollectionName, {strict:true}, function(err, collection) {
 			if (err) {
 				console.log("The 'quran Arabic' collection doesn't exist. Creating now...");
 				populateQuran();
@@ -37,7 +32,7 @@ db.open(function(err, db) {
 		});
 
 	}
-}); 
+  });
 
 /*********************THIS PROVIDES THE MAIN FUNCTIONALITY OF THE API*********************/
 
@@ -55,7 +50,7 @@ function getCollectionNameFromLanguage(language){
 
 exports.findAll = function(req, res) {
 	var collectionToUse = getCollectionNameFromLanguage(req.params.language); 
-	db.collection(collectionToUse, function(err, collection) {
+	mongoose.connection.db.collection(collectionToUse, function(err, collection) {
 		collection.find().toArray(function(err, items) {
 			res.send(items);
 		});
@@ -64,7 +59,7 @@ exports.findAll = function(req, res) {
 
 exports.findByIndex = function(req, res) {
 	var collectionToUse = getCollectionNameFromLanguage(req.params.language); 
-	db.collection(collectionToUse, function(err, collection) {
+	mongoose.connection.db.collection(collectionToUse, function(err, collection) {
 		var _index =  parseInt(req.params.id);
 		console.log(_index);
 		collection.find({index: _index}).toArray(function(err, items) {
@@ -76,7 +71,7 @@ exports.findByIndex = function(req, res) {
 
 exports.findBySurah = function (req, res){
 	var collectionToUse = getCollectionNameFromLanguage(req.params.language); 
-	db.collection(collectionToUse, function(err, collection) {
+	mongoose.connection.db.collection(collectionToUse, function(err, collection) {
 		var _surah = parseInt(req.params.surah);
 		collection.find({surah: _surah}).toArray(function(err, items) {
 			res.send(items);
@@ -87,7 +82,7 @@ exports.findBySurah = function (req, res){
 
 exports.findBySurahVerse = function (req, res){
 	var collectionToUse = getCollectionNameFromLanguage(req.params.language); 
-	db.collection(collectionToUse, function(err, collection) {
+	mongoose.connection.db.collection(collectionToUse, function(err, collection) {
 		var _verse =  parseInt(req.params.verse);
 		var _surah = parseInt(req.params.surah);
 		console.log(_surah + ":" + _verse);
@@ -100,7 +95,7 @@ exports.findBySurahVerse = function (req, res){
 
 exports.findByIndexRange = function(req, res) {
 	var collectionToUse = getCollectionNameFromLanguage(req.params.language); 
-	db.collection(collectionToUse, function(err, collection) {
+	mongoose.connection.db.collection(collectionToUse, function(err, collection) {
 		var _indexFrom =  parseInt(req.params.from);
 		var _indexTo = parseInt(req.params.to);
 		collection.find({index: {$gte: _indexFrom, $lte: _indexTo}}).toArray(function(err, items) {
@@ -112,7 +107,7 @@ exports.findByIndexRange = function(req, res) {
 
 exports.findBySearchTerm = function(req, res) {
 	var collectionToUse = getCollectionNameFromLanguage(req.params.language); 
-	db.collection(collectionToUse, function(err, collection) {
+	mongoose.connection.db.collection(collectionToUse, function(err, collection) {
 		var _text = req.params.term;
 		console.log(_text);
 		collection.find({text : {$regex : ".*" + _text+ ".*", $options: "i"}}).toArray(function(err, items) {
@@ -123,7 +118,7 @@ exports.findBySearchTerm = function(req, res) {
 
 exports.findRandomVerse = function (req, res){
 	var collectionToUse = getCollectionNameFromLanguage(req.params.language); 
-	db.collection(collectionToUse, function(err, collection) {
+	mongoose.connection.db.collection(collectionToUse, function(err, collection) {
 		var _index =  Math.floor((Math.random() * maxVerses));
 		console.log("index calculated was"+_index);
 		collection.find({index: _index}).toArray(function(err, items) {
@@ -150,7 +145,7 @@ var populateTranslation = function() {
 
 		var lines = data.split('\n');
 
-		db.collection(englishCollectionName, function(err, collection) {
+		mongoose.connection.db.collection(englishCollectionName, function(err, collection) {
 			_.each(lines, function(row, idx){
 
 				var members = row.split('|');
@@ -176,7 +171,7 @@ var populateQuran = function() {
 
 		var lines = data.split('\n');
 
-		db.collection(quranArabicCollectionName, function(err, collection) {
+		mongoose.connection.db.collection(quranArabicCollectionName, function(err, collection) {
 			_.each(lines, function(row, idx){
 				if (idx < maxVerses){
 					var members = row.split('|');
